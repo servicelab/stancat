@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"sort"
 	"strings"
@@ -47,10 +48,8 @@ func cmdLine(c *cli.Context) error {
 		log.Fatalf("%s: Must specify subject string\n", appName)
 	}
 
-	if !listen {
-		if strings.ContainsAny(subject, "*>") {
-			log.Fatalf("%s: Cannot specify wildcard subject when publishing\n", appName)
-		}
+	if strings.ContainsAny(subject, "*>") {
+		log.Fatalf("%s: NATS streaming does not support wildcard subjects\n", appName)
 	}
 
 	return nil
@@ -62,6 +61,10 @@ func cat() {
 		log.Fatal(err)
 	}
 	defer nc.Close()
+
+	if clientID == "RANDOM" {
+		clientID = stringWithCharset(10, charset)
+	}
 
 	sc, err := stan.Connect(clusterID, clientID, stan.NatsConn(nc))
 	if err != nil {
@@ -144,6 +147,20 @@ func cat() {
 	}
 }
 
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+var seededRand *rand.Rand = rand.New(
+	rand.NewSource(time.Now().UnixNano()))
+
+func stringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
 func main() {
 	// Log to stderr without timestamp
 	log.SetFlags(0)
@@ -185,7 +202,8 @@ func main() {
 			&cli.StringFlag{
 				Name:        "client_id",
 				Aliases:     []string{"cid", "c"},
-				Value:       "stancat",
+				Value:       "RANDOM",
+				Usage:       "specify a clientID for the connection, if not specified a random client ID is generated",
 				Destination: &clientID,
 			},
 			&cli.BoolFlag{
@@ -217,7 +235,7 @@ func main() {
 				Name:        "subject",
 				Aliases:     []string{"s"},
 				Value:       "",
-				Usage:       "[Required] NATS subject ('*' and '>' wildcards only valid when listening)",
+				Usage:       "[Required] NATS subject ('*' and '>' wildcards are not supported by NATS streaming)",
 				Destination: &subject,
 			},
 			&cli.StringFlag{

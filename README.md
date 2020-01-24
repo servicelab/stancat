@@ -26,7 +26,4 @@ stancat -s test <README.md
 ```bash
 # Listen to a specific subject, writing messages in buffered mode (CRLF appended)
 stancat -l -s test -b
-
-# Listen to all subjects
-stancat -l -s '>'
 ```
