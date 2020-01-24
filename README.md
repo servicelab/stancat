@@ -1,29 +1,32 @@
-# NATSCAT
-A [Go](http://golang.org) tool to send/receive input to [NATS messaging system](https://nats.io), modeled on Unix `netcat` and `cat`.
+# STANCAT
+
+A [Go](http://golang.org) tool to send/receive input to [STAN messaging system](https://docs.nats.io/nats-streaming-concepts/intro), modeled on Unix `netcat` and `cat`.
+
+Based upon [natscat](https://github.com/shogsbro/natscat).
 
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 
 ## Installation
 ```bash
-go get github.com/shogsbro/natscat
+go install github.com/servicelab/stancat
 ```
 
 ## Basic Usage
 
-### Sending to a NATS subject
+### Sending to a STAN subject
 ```bash
 # Send a message to subject 'test'
-natscat -s test -m "Test message"
+stancat -s test -m "Test message"
 
 # Send contents of a file to subject 'test'
-natscat -s test <README.md
+stancat -s test <README.md
 ```
 
-### Listening on a NATS subject
+### Listening on a STAN subject
 ```bash
 # Listen to a specific subject, writing messages in buffered mode (CRLF appended)
-natscat -l -s test -b
+stancat -l -s test -b
 
 # Listen to all subjects
-natscat -l -s '>'
+stancat -l -s '>'
 ```
