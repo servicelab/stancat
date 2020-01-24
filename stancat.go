@@ -1,7 +1,3 @@
-// Copyright 2017 Sigurd Hogsbro
-// NATSCAT
-// =======
-
 package main
 
 import (
